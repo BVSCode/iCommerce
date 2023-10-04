@@ -1,15 +1,12 @@
 const express = require('express');
+
+const productRouter = require('./routes/productRoute');
+
 const app = express();
 
 app.use(express.json());
 
-app.get('/', (req, res) => {
-    res.send('Hello world!');
-});
-
-app.post('/api', (req, res) => {
-    console.log(req.body);
-    res.send('Hello world Post!');
-});
+// Availble-Routes || End-Points
+app.use('/api/v1/products', productRouter);
 
 module.exports = app;
