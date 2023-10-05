@@ -1,98 +1,83 @@
-const fs = require('fs');
+const Product = require('../models/productModel');
 
-const products = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/products.json`));
-// console.log(products)
+exports.getAllProducts = async (req, res) => {
+    try {
+        const products = await Product.find(req.query);
+        // const products = await Product.find({price: {$gte: 500}});
 
-exports.getAllProducts = (req, res) => {
-    res.status(200).json({
-        status: "success",
-        results: products.length,
-        data: products
-    });
-}
-
-exports.getProduct = (req, res) => {
-    const id = req.params.id * 1;
-    const product = products.find(el => el.id === id);
-
-    if (product === undefined) {
-        return res.status(404).json({
-            status: "fails",
-            msg: "The Product Not Found!"
+        res.status(200).json({
+            status: "success",
+            results: products.length,
+            data: products
         });
+    } catch (error) {
+        res.status(400).json({
+            status: "fails",
+            message: error
+        })
     }
-
-    res.status(200).json({
-        status: "success",
-        data: product
-    });
 }
 
-exports.createProduct = (req, res) => {
-    const newId = products[products.length - 1].id + 1;
-    const newProduct = Object.assign({ id: newId }, req.body);
+exports.getProduct = async (req, res) => {
+    try {
+        const product = await Product.findById(req.params.id)
 
-    products.push(newProduct);
+        res.status(200).json({
+            status: "success",
+            data: product
+        });
+    } catch (error) {
+        res.status(400).json({
+            status: 'fails',
+            message: error
+        })
+    }
+}
 
-    fs.writeFile(`${__dirname}/../dev-data/data/products.json`, JSON.stringify(products), err => {
-        if (err)
-            throw err
+exports.createProduct = async (req, res) => {
+    try {
+        const newProduct = await Product.create(req.body)
 
         res.status(201).json({
             status: "success",
             data: newProduct
         });
-    })
-
+    } catch (error) {
+        res.status(400).json({
+            status: "fails",
+            message: error
+        })
+    }
 }
 
-exports.updateProduct = (req, res) => {
-    const id = req.params.id
-    const product = products.find(el => el.id === id);
+exports.updateProduct = async (req, res) => {
+    try {
+        const updatedProduct = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
 
-    if (product === undefined) {
-        return res.status(404).json({
-            status: "fails",
-            msg: "The Product Not Found!"
-        });
-    }
-
-    let updatedProduct = products[id - 1];
-    products[id - 1] = updatedProduct = Object.assign({ id: id }, req.body);
-
-    // console.log(products)
-    fs.writeFile(`${__dirname}/../dev-data/data/products.json`, JSON.stringify(products), err => {
-        if (err)
-            throw err
-
-        res.status(200).json({
+        res.status(201).json({
             status: "success",
             data: updatedProduct
         });
-    });
+    } catch (error) {
+        res.status(400).json({
+            status: "fails",
+            message: error
+        })
+    }
 }
 
-exports.deleteProduct = (req, res) => {
-    const id = req.params.id
-    const product = products.find(el => el.id === id);
-
-    if (product === undefined) {
-        return res.status(404).json({
-            status: "fails",
-            msg: "The Product Not Found!"
-        });
-    }
-
-    products[id - 1] = null;
-    const updatedProducts = products.filter(p => p !== null);
-
-    fs.writeFile(`${__dirname}/../dev-data/data/products.json`, JSON.stringify(updatedProducts), err => {
-        if (err)
-            throw err
+exports.deleteProduct = async (req, res) => {
+    try {
+        await Product.findByIdAndDelete(req.params.id)
 
         res.status(204).json({
             status: "success",
             data: null
         });
-    });
+    } catch (error) {
+        res.status(400).json({
+            status: "fails",
+            message: error
+        })
+    }
 }
