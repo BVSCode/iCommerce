@@ -1,5 +1,12 @@
 const Product = require('../models/productModel');
 
+exports.aliasTopProducts = (req, res, next) => {
+    req.query.limit = '5';
+    req.query.sort = '-ratingsAverage,price';
+    req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
+    next();
+}
+
 exports.getAllProducts = async (req, res) => {
     try {
         // Build the query
@@ -121,6 +128,46 @@ exports.deleteProduct = async (req, res) => {
         res.status(400).json({
             status: "fails",
             message: error
+        })
+    }
+}
+
+// Aggregation Pipeline--
+exports.getProductStats = async (req, res) => {
+    try {
+        const stats = await Product.aggregate([
+            {
+                $match: { ratingsAverage: { $gte: 4.5 } }
+            },
+            {
+                $group: {
+                    _id: '$ratingsAverage',
+                    numProducts: { $sum: 1 },
+                    numRatings: { $sum: '$ratingsQuantity' },
+                    avgRating: { $avg: '$ratingsAverage' },
+                    avgPrice: { $avg: '$price' },
+                    minPrice: { $min: '$price' },
+                    maxPrice: { $max: '$price' }
+                }
+            },
+            {
+                $sort: { avgPrice: 1 } // assending order: start with low and ends high
+                // $sort: { avgPrice: -1} // dessending order: start with high and ends low
+            }
+        ])
+
+        res.status(200).json({
+            status: 'success',
+            results: stats.length,
+            data: {
+                stats
+            }
+        })
+
+    } catch (err) {
+        res.status(400).json({
+            status: 'failed',
+            message: err
         })
     }
 }

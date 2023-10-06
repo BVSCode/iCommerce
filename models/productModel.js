@@ -41,7 +41,6 @@ const productSchema = new mongoose.Schema({
         type: Number,
         validate: {
             validator: function (val) {
-                // this only points to current doc, on NEW document creation not for update or any
                 return val < this.price;
             },
             message: 'Discount price ({VALUE}) must be below to reguler price'
@@ -58,63 +57,18 @@ const productSchema = new mongoose.Schema({
         type: Number,
         default: 0,
     },
-    // canteen: [ // canteen: Array
-    //     {
-    //         type: mongoose.Schema.ObjectId,
-    //         ref: 'Canteen'
-    //     }
-    // ],
-    // categories: [
-    //     {
-    //         type: mongoose.Schema.ObjectId,
-    //         ref: 'Categorie',
-    //         required: [true, 'A Product must Belongs to Category']
-    //     }
-    // ],
     __v: { type: Number, select: false },
-    // createdAt: {
-    //     type: Date,
-    //     default: Date.now()
-    // }
 },
     {
         timestamps: true,
-    },
-    {
-        toJSON: { virtuals: true },
-        toObject: { virtuals: true }
     }
-)
+);
 
-// Creating an index for price, and more..
-// tourSchema.index({price: 1});
-// productSchema.index({ price: 1, ratingsAverage: -1 });
-// productSchema.index({ slug: 1 });
-
-
-// // Virtual Populate, when fetch the specific tour it will show all revies, not for all tour
-// productSchema.virtual('reviews', { // name of field in getProduct query, return an array of reviews
-//     ref: 'Review', // Model collection-name
-//     foreignField: 'product', // ObjectId in product field in review model so, we can connect two models
-//     localField: '_id' // stored id in product field
-// })
-
-// SAVE HOOKS
+// SAVE HOOKS -This middleware will not work for findByIdAndUpdate it's only works for create and save command
 productSchema.pre('save', function (next) {
     this.slug = slugify(this.name, { lower: true });
     next();
-})
-
-// // QUERY HOOKS
-// productSchema.pre(/^find/, function (next) {
-//     // in this query middleware, this always points to current query
-//     this.populate({ // this function creates new query so it can be affect with perfomance, but in small application it's no big deal
-//         path: 'canteen', // field name of refference id
-//         select: '-__v'
-//     });
-
-//     next();
-// })
+});
 
 const Product = mongoose.model('Product', productSchema);
 module.exports = Product;
