@@ -20,10 +20,12 @@ const productSchema = new mongoose.Schema({
     },
     stock: {
         type: Number,
+        min: [1, 'Product must have atleast 1 Quantity'],
         required: [true, 'A Product must have Stock'],
     },
     price: {
         type: Number,
+        min: [5, 'Product must have atleast 5 rupees Price'],
         required: [true, 'A Product must have a Price'],
     },
     slug: String,
