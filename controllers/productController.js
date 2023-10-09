@@ -1,4 +1,5 @@
 const Product = require('../models/productModel');
+const AppError = require('../utils/appError');
 
 exports.aliasTopProducts = (req, res, next) => {
     req.query.limit = '5';
@@ -68,20 +69,24 @@ exports.getAllProducts = async (req, res) => {
     }
 }
 
-exports.getProduct = async (req, res) => {
-    try {
-        const product = await Product.findById(req.params.id)
+exports.getProduct = async (req, res, next) => {
+    const product = await Product.findById(req.params.id);
 
-        res.status(200).json({
-            status: "success",
-            data: product
-        });
-    } catch (error) {
-        res.status(400).json({
-            status: 'fails',
-            message: error
-        })
+    // if (!product) {
+    //     const err = new Error(`Product not found!`);
+    //     err.status = 'fails';
+    //     err.statusCode = 404;
+    //     return next(err);
+    // }
+
+    if (!product) {
+        return next(new AppError('Product not found with that ID!', 404));
     }
+
+    res.status(200).json({
+        status: "success",
+        data: product
+    });
 }
 
 exports.createProduct = async (req, res) => {
@@ -100,36 +105,30 @@ exports.createProduct = async (req, res) => {
     }
 }
 
-exports.updateProduct = async (req, res) => {
-    try {
-        const updatedProduct = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
+exports.updateProduct = async (req, res, next) => {
+    const updatedProduct = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
 
-        res.status(201).json({
-            status: "success",
-            data: updatedProduct
-        });
-    } catch (error) {
-        res.status(400).json({
-            status: "fails",
-            message: error
-        })
+    if (!updatedProduct) {
+        return next(new AppError('Product not found with that ID!', 404));
     }
+
+    res.status(201).json({
+        status: "success",
+        data: updatedProduct
+    });
 }
 
-exports.deleteProduct = async (req, res) => {
-    try {
-        await Product.findByIdAndDelete(req.params.id)
+exports.deleteProduct = async (req, res, next) => {
+    const product = await Product.findByIdAndDelete(req.params.id);
 
-        res.status(204).json({
-            status: "success",
-            data: null
-        });
-    } catch (error) {
-        res.status(400).json({
-            status: "fails",
-            message: error
-        })
+    if (!product) {
+        return next(new AppError('Product not found with that ID', 404));
     }
+
+    res.status(204).json({
+        status: "success",
+        data: null
+    });
 }
 
 // Aggregation Pipeline--
@@ -154,16 +153,14 @@ exports.getProductStats = async (req, res) => {
                 $sort: { avgPrice: 1 } // assending order: start with low and ends high
                 // $sort: { avgPrice: -1} // dessending order: start with high and ends low
             }
-        ])
-
+        ]);
         res.status(200).json({
             status: 'success',
             results: stats.length,
             data: {
                 stats
             }
-        })
-
+        });
     } catch (err) {
         res.status(400).json({
             status: 'failed',
