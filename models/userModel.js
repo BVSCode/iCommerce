@@ -74,5 +74,16 @@ const userSchema = new mongoose.Schema(
     }
 );
 
+// CHECKING THE USER OTP-
+userSchema.methods.correctOTP = function (otp, phoneOtp) {
+    return otp === phoneOtp;
+};
+
+// ONLY SHOW ACTIVE TRUE USERS
+userSchema.pre(/^find/, function (next) {
+    this.find({ active: { $ne: false } });
+    next();
+});
+
 const User = mongoose.model('User', userSchema);
 module.exports = User;

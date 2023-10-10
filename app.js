@@ -1,4 +1,5 @@
 const express = require('express');
+const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 
 const AppError = require('./utils/appError');
@@ -16,6 +17,8 @@ if (process.env.NODE_ENV === 'development') {
 
 // PROD-MIDDLEWARES
 app.use(express.json());
+app.use(cookieParser());
+
 
 // Availble-Routes || End-Points
 app.use('/api/v1/products', productRouter);

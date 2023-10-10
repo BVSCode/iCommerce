@@ -4,10 +4,23 @@ const authController = require('../controllers/authController');
 
 const router = express.Router();
 
-// Authentication Routes
+// FREE FOR EVERYONE ON THE APPLICATION-
 router.post('/signup', authController.signup);
+router.post('/login', authController.login);
+router.post('/verifyOTP', authController.verifyPhoneOtp);
 
-// The User Route and End-Point
+// AUTH-MIDDLEWARE, PROJECT EVERY ROUTES FROM HERE-
+router.use(authController.protect);
+
+// AUTHENTICATE USER, NEEDS TO BE LOGIN FOR USE THESE ROUTES
+router.get('/me', userController.getMe, userController.getUser);
+router.patch('/updateMe', userController.updateMe);
+router.delete('/deleteMe', userController.deleteMe);
+
+// AUTHENTICATE WITH ADMIN, AFTER THIS MIDDLEWARE, EVERY ROUTE IS PROTECTED
+router.use(authController.restrictTo('admin'));
+
+// THE ADMIN ROUTES-
 router
   .route('/')
   .get(userController.getAllUsers)
