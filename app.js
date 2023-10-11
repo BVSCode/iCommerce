@@ -43,7 +43,7 @@ if (process.env.NODE_ENV === 'development') {
 
 // Limit Requests from same API-
 const limiter = rateLimit({
-  // validate: { trustProxy: false },
+  validate: { trustProxy: false },
   max: 500, // max request
   windowMs: 60 * 60 * 1000, // max request in this time frame
   message: 'Too many requests from this IP, please try again in an hour!' // generic error message
