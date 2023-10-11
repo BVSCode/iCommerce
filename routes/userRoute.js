@@ -8,6 +8,7 @@ const router = express.Router();
 router.post('/signup', authController.signup);
 router.post('/login', authController.login);
 router.post('/verifyOTP', authController.verifyPhoneOtp);
+router.get('/logout', authController.logout);
 
 // AUTH-MIDDLEWARE, PROJECT EVERY ROUTES FROM HERE-
 router.use(authController.protect);
