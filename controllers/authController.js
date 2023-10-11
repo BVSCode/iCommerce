@@ -1,3 +1,8 @@
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+// const verifySid = process.env.TWILIO_VERIFY_SID;
+
+const client = require('twilio')(accountSid, authToken);
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
@@ -82,6 +87,15 @@ exports.login = catchAsync(async (req, res, next) => {
     // 4) Save otp to into Database
     user.phoneOtp = otp;
     await user.save({ validateBeforeSave: false });
+
+    // Send the OTP via SMS
+    await client.messages.create({
+        body: `Here is the OTP : ${otp} to login to your Anskeytechnology account.
+        It is valid for 2 minutes only. Please enter the OTP to proceed futher. Happy Shopping!`,
+        from: '+16183563653',
+        // to: '+916353213422'
+        to: `+91${user.phone}`
+    });
 
     // 5) Send the message
     res.status(200).json({

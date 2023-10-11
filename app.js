@@ -43,6 +43,7 @@ if (process.env.NODE_ENV === 'development') {
 
 // Limit Requests from same API-
 const limiter = rateLimit({
+  // validate: { trustProxy: false },
   max: 500, // max request
   windowMs: 60 * 60 * 1000, // max request in this time frame
   message: 'Too many requests from this IP, please try again in an hour!' // generic error message
@@ -56,7 +57,7 @@ app.use(express.json({ limit: '10kb' })); // limiting 10kb data in req.body
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 // Cookie Parser-
-app.use(cookieParser()); 
+app.use(cookieParser());
 
 // Data Sanitization Against NoSQL query injection-
 app.use(mongoSanitize());
@@ -73,8 +74,8 @@ app.use('/api/v1/users', userRouter);
 
 // Handling undefined routes
 app.all('*', (req, res, next) => {
-    // Creating an Error here and passing to Global Error handler
-    next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+  // Creating an Error here and passing to Global Error handler
+  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
 // Error and Exception Handling
