@@ -54,7 +54,7 @@ exports.getAllProducts = catchAsync(async (req, res, next) => {
     }
 
     // Now Execute the query
-    const products = query;
+    const products = await query;
 
     res.status(200).json({
         status: "success",

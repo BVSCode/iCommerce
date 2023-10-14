@@ -90,7 +90,7 @@ exports.login = catchAsync(async (req, res, next) => {
 
     // Send the OTP via SMS
     await client.messages.create({
-        body: `Here is the OTP : ${otp} to login to your Anskeytechnology account.
+        body: `Here is the OTP : ${otp} to login to your iCommerce account.
         It is valid for 2 minutes only. Please enter the OTP to proceed futher. Happy Shopping!`,
         from: '+16183563653',
         // to: '+916353213422'

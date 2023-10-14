@@ -15,6 +15,7 @@ const globalErrorHandler = require('./controllers/errorController');
 // ROUTERS FILES-
 const productRouter = require('./routes/productRoute');
 const userRouter = require('./routes/userRoute');
+const reviewRouter = require('./routes/reviewRoute');
 
 const app = express();
 
@@ -71,6 +72,7 @@ app.use(compression());
 // Availble-Routes || End-Points
 app.use('/api/v1/products', productRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
 
 // Handling undefined routes
 app.all('*', (req, res, next) => {
