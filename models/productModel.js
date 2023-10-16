@@ -62,9 +62,20 @@ const productSchema = new mongoose.Schema({
     __v: { type: Number, select: false },
 },
     {
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true }
+    },
+    {
         timestamps: true,
     }
 );
+
+// Virtual Populate, When fetch the specific Product it will show all reviews beloging that,
+productSchema.virtual('reviews', {
+    ref: 'Review', // Refference Model
+    foreignField: 'product', // field name in other schema model that store the reff of product
+    localField: '_id' // field name in the current schema model
+});
 
 // SAVE HOOKS -This middleware will not work for findByIdAndUpdate it's only works for create and save command
 productSchema.pre('save', function (next) {

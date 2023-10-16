@@ -8,7 +8,7 @@ exports.setProductUserIds = (req, res, next) => {
     // Allow nested routes
     if (!req.body.product) req.body.product = req.params.productId;
     if (!req.body.user) req.body.user = req.user.id;
-    
+
     next();
 }
 
@@ -82,6 +82,8 @@ exports.updateReview = catchAsync(async (req, res, next) => {
 // 5) Route Handlers, Delete a Review, Method DETELE
 exports.deleteReview = catchAsync(async (req, res, next) => {
     const review = await Review.findByIdAndDelete(req.params.id);
+
+    console.log({ review }, 'controller');
 
     if (!review) {
         return next(new AppError('No Review found with that ID', 404));

@@ -20,19 +20,38 @@ const reviewSchema = new mongoose.Schema(
         },
         user: {
             type: mongoose.Schema.ObjectId,
-            ref: 'User',
+            ref: 'User', // Refference to Product Model
             required: [true, 'Review must belong to a User.']
         },
         createdAt: {
             type: Date,
             default: Date.now(),
             select: false
-        }
+        },
+        __v: { type: Number, select: false },
     }
 );
 
-// only user can put on review with a perticuler Product, not multiple with same Product
-reviewSchema.index({ product: 1, user: 1 }, { unique: true }); 
+// Only user can put on review with a Perticuler Product, not multiple with same Product
+reviewSchema.index({ product: 1, user: 1 }, { unique: true });
+
+// Populate: this will invoke every find-query
+reviewSchema.pre(/^find/, function (next) {
+    this.populate({
+        path: 'product', // field name in schema which will be replaced
+        select: 'name'
+    }).populate({
+        path: 'user',
+        select: 'userName photo'
+    })
+
+    // this.populate({
+    //     path: 'user',
+    //     select: 'userName photo'
+    // });
+
+    next();
+});
 
 // Calculating Ratings Average--
 reviewSchema.statics.calcAverageRatings = async function (productId) {
@@ -75,6 +94,7 @@ reviewSchema.pre(/^findOneAnd/, async function (next) {
     // this will work on while a new review being updated or deleted
     // this keyword represents the current document being processing.
     this.r = await this.clone().findOne(); // this will just clone the current quering document and passes it to the next
+    console.log(this.r, 'schema');
     next();
 });
 
