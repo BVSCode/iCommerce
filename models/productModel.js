@@ -61,7 +61,7 @@ const productSchema = new mongoose.Schema({
     },
     __v: { type: Number, select: false },
 },
-    {
+    { // Without this properties virtual populate and virtual fields not working
         toJSON: { virtuals: true },
         toObject: { virtuals: true }
     },
@@ -69,6 +69,10 @@ const productSchema = new mongoose.Schema({
         timestamps: true,
     }
 );
+
+// Creating Indexing for better read Performence
+productSchema.index({ price: 1, ratingsAverage: -1 });
+productSchema.index({ slug: 1 });
 
 // Virtual Populate, When fetch the specific Product it will show all reviews beloging that,
 productSchema.virtual('reviews', {
