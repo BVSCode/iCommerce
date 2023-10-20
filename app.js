@@ -17,6 +17,11 @@ const productRouter = require('./routes/productRoute');
 const userRouter = require('./routes/userRoute');
 const reviewRouter = require('./routes/reviewRoute');
 const cartRouter = require('./routes/cartRoute');
+const orderRouter = require('./routes/orderRoute');
+const paymentRouter = require('./routes/paymentRoute');
+
+// Stripe session
+const orderController = require('./controllers/orderController');
 
 const app = express();
 
@@ -52,6 +57,13 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter); // Set Limiter to api /api - routes
 
+// Stripe Webhooks - put this middleware before body-parser, because stripe needs raw body
+app.post(
+  '/webhook-checkout',
+  express.raw({ type: 'application/json' }),
+  orderController.webhookCheckout
+);
+
 // Body Parser-
 app.use(express.json({ limit: '10kb' })); // limiting 10kb data in req.body
 
@@ -70,11 +82,23 @@ app.use(xss()); // remove all the malious html with javascript code at req.body
 // Compression the app to better perfomance and optimazation-
 app.use(compression());
 
+// endpoints for test stripe-
+// API FOR TEST
+app.get('/', (req, res) => {
+  res.send('Payment Successfull!');
+});
+
+app.get('/cancel', (req, res) => {
+  res.send('Payment Failed!');
+});
+
 // Availble-Routes || End-Points
 app.use('/api/v1/products', productRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
 app.use('/api/v1/mycart', cartRouter);
+app.use('/api/v1/myorders', orderRouter);
+app.use('/api/v1/payments', paymentRouter);
 
 // Handling undefined routes
 app.all('*', (req, res, next) => {
