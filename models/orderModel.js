@@ -7,11 +7,11 @@ const orderSchema = mongoose.Schema(
       ref: 'User',
       required: [true, 'user is must!']
     },
-    paymentId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Payment',
-      required: [true, 'Payment is must!']
-    },
+    // paymentId: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: 'Payment',
+    //   // required: [true, 'Payment is must!']
+    // },
     items: [
       {
         // productId: {
