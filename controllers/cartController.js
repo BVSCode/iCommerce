@@ -44,17 +44,20 @@ exports.getUserCart = catchAsync(async (req, res, next) => {
 // 2- Add Product to Cart, Increase the quantity of Product, and Create new Cart--
 exports.addItemToCart = catchAsync(async (req, res, next) => {
     const userId = req.user.id;
+    // const productId = req.params.productId;
     const { productId, quantity, cupSize, instruction } = req.body;
+    // const { quantity, cupSize, instruction } = req.body;
 
     // STEP 1: FIND THE USER'S CART
     let cart = await Cart.findOne({
         userId: req.user.id,
         isActive: { $ne: false }
     });
+    
     const product = await Product.findById(productId);
 
     if (!product) {
-        return next(new AppError('Product not found!', 404));
+        return next(new AppError(`Product not found for ID: ${productId}!`, 404));
     }
 
     const price = product.price;
