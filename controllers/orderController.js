@@ -209,7 +209,9 @@ exports.webhookCheckout = async (req, res) => {
 
 // 1) ROUTE GET-ALL-ORDERS | GET API, END-POINTS /api/v1/orders
 exports.getAllOrders = catchAsync(async (req, res, next) => {
-  const allOrders = await Order.find({ userId: req.user.id });
+  let filterOBJ = {};
+  if (req.body.userId) filterOBJ = { userId: req.user.id }
+  const allOrders = await Order.find(filterOBJ);
 
   if (allOrders.length <= 0) {
     return next(new AppError('No Order Found For This User!', 404));
@@ -217,6 +219,7 @@ exports.getAllOrders = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: 'success',
+    results: allOrders.length,
     data: {
       allOrders
     }
