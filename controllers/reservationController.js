@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const Reservation = require('../models/reservationModel');
-const Cart = require('../models/cartModel');
 const Product = require('../models/productModel');
 
 // const RESERVATION_EXPIRY_TIME = 60000; // 10 minutes

@@ -2,6 +2,12 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const Cart = require('../models/cartModel');
 const Product = require('../models/productModel');
+const Reservation = require('../models/reservationModel');
+
+// const RESERVATION_EXPIRY_TIME = 60000; // 1 minutes
+const RESERVATION_EXPIRY_TIME = 300000; // 5 minutes
+// const RESERVATION_EXPIRY_TIME = 180000; // 3 minutes
+// const RESERVATION_EXPIRY_TIME = 120000; // 2 minutes
 
 // 1- Finds User Cart--
 exports.getUserCart = catchAsync(async (req, res, next) => {
@@ -44,16 +50,14 @@ exports.getUserCart = catchAsync(async (req, res, next) => {
 // 2- Add Product to Cart, Increase the quantity of Product, and Create new Cart--
 exports.addItemToCart = catchAsync(async (req, res, next) => {
     const userId = req.user.id;
-    // const productId = req.params.productId;
     const { productId, quantity, cupSize, instruction } = req.body;
-    // const { quantity, cupSize, instruction } = req.body;
 
     // STEP 1: FIND THE USER'S CART
     let cart = await Cart.findOne({
         userId: req.user.id,
         isActive: { $ne: false }
     });
-    
+
     const product = await Product.findById(productId);
 
     if (!product) {
@@ -71,26 +75,93 @@ exports.addItemToCart = catchAsync(async (req, res, next) => {
         // if cart does not exists else code create a new cart for user
         let itemIndex = cart.items.findIndex(p => p.productId == productId);
 
-        // if the Product found in the cart update the quantity
+        // If The Product Found in The Cart Update The Quantity
         if (itemIndex > -1) {
             let productItem = cart.items[itemIndex];
             productItem.quantity = quantity;
 
             if (product.stock < productItem.quantity) {
-                return res.status(400).json({
-                    error: `Insufficient product quantity for ID: ${productItem.productId}`
-                });
+                return next(new AppError(`Insufficient product quantity for ID: ${productId}`, 400));
             }
+
+            let reservation = await Reservation.findOne({
+                productId,
+                userId,
+                status: 'pending'
+            });
+
+            // console.log(Reservation);
+
+            if (!reservation) {
+                return next(new AppError(`Reservation not found for Product: ${productId}!`, 404));
+            }
+
+            const quantityLeft = reservation.quantity - quantity;
+            reservation.quantity = quantity;
+
+            // Increase The Stock
+            product.stock += quantityLeft;
+
+            // await product.save({ session });
+            // await reservation.save({ session });
+            await product.save();
+            await reservation.save();
 
             productItem.Subtotal = product.price * productItem.quantity;
             cart.items[itemIndex] = productItem; // save the updated products in to cart products
         } else {
             //STEP 3 Product does not Exists in Cart, Add new item
             if (product.stock < quantity) {
-                return res.status(400).json({
-                    error: `Insufficient product quantity for ID: ${product._id}`
-                });
+                return next(new AppError(`Insufficient product quantity for ID: ${productId}`, 400));
             }
+
+            const existingReservation = await Reservation.findOne({
+                productId,
+                userId,
+                status: 'pending'
+            });
+
+            if (existingReservation) {
+                // await session.abortTransaction();
+                // session.endSession();
+                return next(new AppError(`Product already reserved for ID: ${productId}`, 400));
+            }
+
+            const reservation = new Reservation({
+                productId,
+                userId,
+                quantity
+            });
+
+            // Reduce the Stock
+            product.stock -= quantity;
+
+            // await product.save({ session });
+            // await reservation.save({ session });
+            await product.save();
+            await reservation.save();
+
+            // Schedule Reservation Expiration---
+            console.log(`The Product is Reserved for ${RESERVATION_EXPIRY_TIME / 60000} Minutes only!`);
+            reservation.timeout = setTimeout(async () => {
+                const expiredReservation = reservation;
+                if (expiredReservation && expiredReservation.status === 'pending') {
+                    expiredReservation.status = 'expired';
+                    expiredReservation.timeout = undefined;
+                    await expiredReservation.save();
+                    console.log(product.stock);
+                    product.stock += expiredReservation.quantity;
+                    console.log(product.stock);
+                    await product.save();
+                    console.log('Reservation Expired Successfully!');
+                }
+            }, RESERVATION_EXPIRY_TIME);
+
+            // await reservation.save({ session });
+            await reservation.save();
+
+            // await session.commitTransaction();
+            // session.endSession();
 
             Subtotal = product.price * quantity;
             cart.items.push({
@@ -109,18 +180,68 @@ exports.addItemToCart = catchAsync(async (req, res, next) => {
             .map(productItem => productItem.Subtotal)
             .reduce((acc, curr) => acc + curr);
 
+        // cart = await cart.save({ session });
+        // await session.commitTransaction();
+        // session.endSession();
         cart = await cart.save();
+
         return res.status(200).json({
             status: 'success',
             data: cart
         });
     } else {
-        //STEP 4 if No cart for User, Create new Cart
+        //STEP 4 if No cart for User, Create new Cart and add The Item to cart
         if (product.stock < quantity) {
-            return res.status(400).json({
-                error: `Insufficient product quantity for ID: ${product._id}`
-            });
+            return next(new AppError(`Insufficient product quantity for ID: ${productId}`, 400));
         }
+
+        const existingReservation = await Reservation.findOne({
+            productId,
+            userId,
+            status: 'pending'
+        });
+
+        if (existingReservation) {
+            // await session.abortTransaction();
+            // session.endSession();
+            return next(new AppError(`Product already reserved for ID: ${productId}`, 400));
+        }
+
+        const reservation = new Reservation({
+            productId,
+            userId,
+            quantity
+        });
+
+        // Reduce the Stock
+        product.stock -= quantity;
+
+        await product.save();
+        await reservation.save();
+        // await product.save({ session });
+        // await reservation.save({ session });
+
+        // Schedule Reservation Expiration---
+        console.log(`The Product is Reserved for ${RESERVATION_EXPIRY_TIME / 60000} Minutes only!`);
+        reservation.timeout = setTimeout(async () => {
+            const expiredReservation = reservation;
+            if (expiredReservation && expiredReservation.status === 'pending') {
+                expiredReservation.status = 'expired';
+                expiredReservation.timeout = undefined;
+                await expiredReservation.save();
+                console.log(product.stock);
+                product.stock += expiredReservation.quantity;
+                console.log(product.stock);
+                await product.save();
+                console.log('Reservation Expired Successfully!');
+            }
+        }, RESERVATION_EXPIRY_TIME);
+
+        // await reservation.save({ session });
+        await reservation.save();
+
+        // await session.commitTransaction();
+        // session.endSession();
 
         Subtotal = product.price * quantity;
         total = product.price * quantity;
@@ -165,6 +286,25 @@ exports.removeItem = catchAsync(async (req, res, next) => {
 
     if (itemIndex > -1) {
         cart.items.splice(itemIndex, 1);
+
+        const product = await Product.findById(productId);
+        const existingReservation = await Reservation.findOne({
+            productId,
+            userId: req.user.id,
+            status: 'pending'
+        });
+
+        if (!existingReservation) {
+            return next(new AppError(`Reservation not found for Product: ${productId}!`, 404));
+        }
+
+        product.stock += existingReservation.quantity;
+        existingReservation.status = 'released';
+        clearTimeout(existingReservation.timeout);
+        existingReservation.timeout = undefined;
+
+        await product.save();
+        await existingReservation.save();
 
         if (cart.items.length < 1) {
             cart.total = 0;
