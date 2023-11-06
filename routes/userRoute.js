@@ -15,7 +15,12 @@ router.use(authController.protect);
 
 // AUTHENTICATE USER, NEEDS TO BE LOGIN FOR USE THESE ROUTES
 router.get('/me', userController.getMe, userController.getUser);
-router.patch('/updateMe', userController.updateMe);
+router.patch(
+  '/updateMe',
+  userController.uploadUserPhoto,
+  userController.resizeUserPhoto,
+  userController.updateMe
+);
 router.delete('/deleteMe', userController.deleteMe);
 
 // AUTHENTICATE WITH ADMIN, AFTER THIS MIDDLEWARE, EVERY ROUTE IS PROTECTED
