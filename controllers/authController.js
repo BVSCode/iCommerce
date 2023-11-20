@@ -9,6 +9,7 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const generateOTP = require('../utils/generateOTP');
 const { promisify } = require('util');
+const sendEmail = require('../utils/email');
 
 const signToken = id => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -48,7 +49,19 @@ exports.signup = catchAsync(async (req, res, next) => {
     }
 
     // 3) if everything ok Create a user instance
-    await User.create(req.body);
+    const user = await User.create(req.body);
+
+    try {
+        await sendEmail({ // passing the argument to the sendEmail function
+            email: user.email,
+            subject: 'Welcome to the iCommerce',
+            // html: html
+            html: '<h1>Welcome</h1><p>That was easy!</p>'
+        });
+    } catch (error) {
+        console.log(error);
+        return next(new AppError('There was an error while sending the email. Please Try again later!', 500))
+    }
 
     // 4) Send the message
     res.status(200).json({
@@ -88,14 +101,14 @@ exports.login = catchAsync(async (req, res, next) => {
     user.phoneOtp = otp;
     await user.save({ validateBeforeSave: false });
 
-    // Send the OTP via SMS
-    await client.messages.create({
-        body: `Here is the OTP : ${otp} to login to your iCommerce account.
-        It is valid for 2 minutes only. Please enter the OTP to proceed futher. Happy Shopping!`,
-        from: '+16183563653',
-        // to: '+916353213422'
-        to: `+91${user.phone}`
-    });
+    // // Send the OTP via SMS
+    // await client.messages.create({
+    //     body: `Here is the OTP : ${otp} to login to your iCommerce account.
+    //     It is valid for 2 minutes only. Please enter the OTP to proceed futher. Happy Shopping!`,
+    //     from: '+16183563653',
+    //     // to: '+916353213422'
+    //     to: `+91${user.phone}`
+    // });
 
     // 5) Send the message
     res.status(200).json({

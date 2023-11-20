@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        /* Inline CSS styles */
+        *,
+        ::after,
+        ::before {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin-top: 20px;
+            background-color: #eee;
+        }
+
+        .align-middle {
+            vertical-align: middle !important;
+        }
+
+        /* .container,
+        .container-lg,
+        .container-md,
+        .container-sm,
+        .container-xl,
+        .container-xxl {
+            max-width: 1320px;
+        } */
+
+        .container,
+        .container-fluid,
+        .container-lg,
+        .container-md,
+        .container-sm,
+        .container-xl,
+        .container-xxl {
+            width: 100%;
+            padding-right: var(--bs-gutter-x, .75rem);
+            padding-left: var(--bs-gutter-x, .75rem);
+            margin-right: auto;
+            margin-left: auto;
+        }
+
+        .card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            word-wrap: break-word;
+            background-color: #fff;
+            background-clip: border-box;
+            border: 0 solid rgba(0, 0, 0, .125);
+            border-radius: 1rem;
+        }
+
+        .card {
+            box-shadow: 0 20px 27px 0 rgb(0 0 0 / 5%);
+        }
+
+        .card-body {
+            flex: 1 1 auto;
+            padding: 1rem 1rem;
+        }
+
+        /* @media (min-width: 576px)  */
+        .col-sm-6 {
+            flex: 0 0 auto;
+            width: 50%;
+        }
+
+        .col-lg-12 {
+            flex: 0 0 auto;
+            width: 100%;
+        }
+
+        .float-end {
+            float: right !important;
+        }
+
+        .font-size-15 {
+            font-size: 1.5rem;
+            margin: unset;
+        }
+
+        .font-size-16 {
+            font-size: 1.25rem;
+            margin: unset;
+        }
+
+        .flex {
+            -ms-flex: 1;
+            flex: 1;
+        }
+
+        hr {
+            margin: 1rem 0;
+            color: inherit;
+            background-color: currentColor;
+            border: 0;
+            opacity: .25;
+        }
+
+        .mb-0 {
+            margin-bottom: 0 !important;
+        }
+
+        .mb-1 {
+            margin-bottom: 0.25rem !important;
+        }
+
+        .mb-2 {
+            margin-bottom: 2rem;
+        }
+
+        .mb-3 {
+            margin-bottom: 1rem !important;
+        }
+
+        .mb-4 {
+            margin-bottom: 1.5rem !important;
+        }
+
+        .me-1 {
+            margin-right: 0.25rem !important;
+        }
+
+        .ms-2 {
+            margin-left: 0.5rem !important;
+        }
+
+        .me-1 {
+            margin-right: 0.25rem !important;
+        }
+
+        .my-4 {
+            margin-top: 1.5rem !important;
+            margin-bottom: 1.5rem !important;
+        }
+
+        .mt-4 {
+            margin-top: 1.5rem !important;
+        }
+
+        .text-sm-end {
+            text-align: right !important;
+        }
+
+        .text-muted {
+            color: #6c757d !important;
+        }
+
+        .text-truncate {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .table {
+            --bs-table-bg: transparent;
+            --bs-table-accent-bg: transparent;
+            --bs-table-striped-color: #212529;
+            --bs-table-striped-bg: rgba(0, 0, 0, 0.05);
+            --bs-table-active-color: #212529;
+            --bs-table-active-bg: rgba(0, 0, 0, 0.1);
+            --bs-table-hover-color: #212529;
+            --bs-table-hover-bg: rgba(0, 0, 0, 0.075);
+            width: 100%;
+            margin-bottom: 1rem;
+            color: #212529;
+            vertical-align: top;
+            border-color: #dee2e6;
+        }
+
+        .table-bordered {
+            border: 1px solid #dee2e6;
+        }
+
+        .table-centered {
+            text-align: center;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            caption-side: bottom;
+            border-collapse: collapse;
+        }
+
+        .table>thead {
+            vertical-align: bottom;
+        }
+
+        .table>:not(:last-child)>:last-child>* {
+            border-bottom-color: currentColor;
+        }
+
+        .table>:not(caption)>*>* {
+            padding: 0.5rem 0.5rem;
+            background-color: var(--bs-table-bg);
+            border-bottom-width: 1px;
+            box-shadow: inset 0 0 0 9999px var(--bs-table-accent-bg);
+        }
+
+        tr {
+            border-color: inherit;
+            border-style: solid;
+            border-width: 0;
+        }
+
+        /* tr {
+            display: table-row;
+            vertical-align: inherit;
+            border-color: inherit;
+        } */
+
+        th {
+            display: table-cell;
+            vertical-align: inherit;
+            font-weight: bold;
+            text-align: -internal-center;
+        }
+
+        td {
+            display: table-cell;
+            vertical-align: inherit;
+        }
+
+        th {
+            padding: 13px 20px !important;
+        }
+
+        td {
+            font-size: 13px;
+            font-weight: initial !important;
+        }
+
+        .text-end {
+            text-align: right;
+        }
+
+        .border-0 {
+            border: 0;
+        }
+
+        h2 {
+            display: block;
+            font-size: 2rem;
+            margin-block-start: 0.83em;
+            margin-block-end: 0.83em;
+            margin-inline-start: 0px;
+            margin-inline-end: 0px;
+            font-weight: bold;
+        }
+
+        h4 {
+            font-size: 1.5rem;
+        }
+
+        h5 {
+            display: block;
+            font-size: 0.83em;
+            margin-block-start: 1.67em;
+            margin-block-end: 1.67em;
+            margin-inline-start: 0px;
+            margin-inline-end: 0px;
+            font-weight: bold;
+        }
+
+        .bg-success {
+            background-color: #198754 !important;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.35em 0.65em;
+            font-size: .75em;
+            font-weight: 700;
+            line-height: 1;
+            color: #fff;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.25rem;
+        }
+
+        .btn {
+            display: inline-block;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #212529;
+            text-align: center;
+            text-decoration: none;
+            vertical-align: middle;
+            cursor: pointer;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+            background-color: transparent;
+            border: 1px solid transparent;
+            padding: 0.375rem 0.75rem;
+            font-size: 1rem;
+            border-radius: 0.25rem;
+            transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+        }
+
+        .btn-success {
+            color: #fff;
+            background-color: #198754;
+            border-color: #198754;
+        }
+
+        p {
+            display: block;
+            margin-block-start: 1em;
+            margin-block-end: 1em;
+            margin-inline-start: 0px;
+            margin-inline-end: 0px;
+        }
+
+        .py-2 {
+            padding-top: 0.5rem !important;
+            padding-bottom: 0.5rem !important;
+        }
+
+        .pb-0 {
+            padding-bottom: 0 !important;
+        }
+
+        .p-3 {
+            padding: 1rem !important;
+        }
+
+        .preview-iframe {
+            border: 0;
+            width: 100%;
+            height: auto;
+            min-height: 1006px;
+        }
+
+        .preview-content {
+            box-shadow: inset 0 0 20px #ddd;
+        }
+
+        .row>* {
+            /* flex-shrink: 0;
+            width: 100%; */
+            max-width: 100%;
+            padding-right: calc(var(--bs-gutter-x)/ 2);
+            padding-left: calc(var(--bs-gutter-x)/ 2);
+            margin-top: var(--bs-gutter-y);
+        }
+
+        .row {
+            /* --bs-gutter-x: 1.5rem; */
+            /* --bs-gutter-y: 0; */
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: calc(var(--bs-gutter-y) * -1);
+            margin-right: calc(var(--bs-gutter-x)/ -2);
+            margin-left: calc(var(--bs-gutter-x)/ -2);
+        }
+
+        hr:not([size]) {
+            height: 1px;
+        }
+
+        div {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="invoice-title">
+                            <h4 class="float-end font-size-15">Invoice #DS0204 <span
+                                    class="badge bg-success font-size-12 ms-2">Paid</span></h4>
+                            <div class="mb-4">
+                                <h2 class="mb-1 text-muted">Bootdey.com</h2>
+                            </div>
+                            <div class="text-muted">
+                                <p class="mb-1">3184 Spruce Drive Pittsburgh, PA 15201</p>
+                                <p class="mb-1"><i class="uil uil-envelope-alt me-1"></i> xyz@987.com</p>
+                                <p><i class="uil uil-phone me-1"></i> 012-345-6789</p>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="text-muted">
+                                    <h5 class="font-size-16 mb-3">Billed To:</h5>
+                                    <h5 class="font-size-15">Preston Miller</h5>
+                                    <p class="mb-1">4068 Post Avenue Newfolden, MN 56738</p>
+                                    <p class="mb-1">PrestonMiller@armyspy.com</p>
+                                    <p>001-234-5678</p>
+                                </div>
+                            </div>
+                            <!-- end col -->
+                            <div class="col-sm-6">
+                                <div class="text-muted text-sm-end">
+                                    <div>
+                                        <h5 class="font-size-15 mb-1">Invoice No:</h5>
+                                        <p>#DZ0112</p>
+                                    </div>
+                                    <div class="mt-4">
+                                        <h5 class="font-size-15 mb-1">Invoice Date:</h5>
+                                        <p>12 Oct, 2020</p>
+                                    </div>
+                                    <div class="mt-4">
+                                        <h5 class="font-size-15 mb-1">Order No:</h5>
+                                        <p>#1123456</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- end col -->
+                        </div>
+                        <!-- end row -->
+
+                        <div class="py-2">
+                            <h5 class="font-size-15">Order Summary</h5>
+
+                            <div class="table-responsive">
+                                <table class="table align-middle table-nowrap table-centered mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 70px;">No.</th>
+                                            <th>Item</th>
+                                            <th>Price</th>
+                                            <th>Quantity</th>
+                                            <th class="text-end" style="width: 120px;">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row">01</th>
+                                            <td>
+                                                <div>
+                                                    <h5 class="text-truncate font-size-14 mb-1">Black Strap A012</h5>
+                                                    <p class="text-muted mb-0">Watch, Black</p>
+                                                </div>
+                                            </td>
+                                            <td>$ 245.50</td>
+                                            <td>1</td>
+                                            <td class="text-end">$ 245.50</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">02</th>
+                                            <td>
+                                                <div>
+                                                    <h5 class="text-truncate font-size-14 mb-1">Stainless Steel S010
+                                                    </h5>
+                                                    <p class="text-muted mb-0">Watch, Gold</p>
+                                                </div>
+                                            </td>
+                                            <td>$ 245.50</td>
+                                            <td>2</td>
+                                            <td class="text-end">$491.00</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" colspan="4" class="text-end">Sub Total</th>
+                                            <td class="text-end">$732.50</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" colspan="4" class="border-0 text-end">
+                                                Discount :
+                                            </th>
+                                            <td class="border-0 text-end">- $25.50</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" colspan="4" class="border-0 text-end">
+                                                Shipping Charge :
+                                            </th>
+                                            <td class="border-0 text-end">$20.00</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" colspan="4" class="border-0 text-end">
+                                                Tax
+                                            </th>
+                                            <td class="border-0 text-end">$12.00</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row" colspan="4" class="border-0 text-end">Total</th>
+                                            <td class="border-0 text-end">
+                                                <h4 class="m-0 fw-semibold">$739.00</h4>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="d-print-none mt-4">
+                                <div class="float-end">
+                                    <a href="javascript:window.print()" class="btn btn-success me-1">Print</a>
+                                    <!-- <a href="#" class="btn btn-primary w-md">Send</a> -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

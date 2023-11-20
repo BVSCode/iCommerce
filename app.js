@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
@@ -39,6 +40,10 @@ app.use(cors());
 // Enable Cors pre-flight for All Request-
 app.options('*', cors());
 // app.options('/api/v1/products/:id', cors());
+
+// SERVING THE STATIC FILES FROM THE SERVER
+app.use(express.static(path.join(__dirname, 'public')));
+
 
 // Set Security HTTP headers
 app.use(helmet());
